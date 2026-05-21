@@ -1,6 +1,59 @@
 # 13 - Complete Game
 
-# Jogo dos Ponteiros e malloc em Raylib (C)
+# Jogo dos Ponteiros, malloc e realloc em Raylib (C)
+
+# Objetivo da Aula
+
+Nesta aula iremos juntar praticamente TODOS os conceitos aprendidos anteriormente:
+
+- janela
+- renderização
+- FPS
+- input
+- colisão
+- structs
+- arrays
+- ponteiros
+- heap
+- malloc
+- realloc
+- free
+- gameplay loop
+- entidades dinâmicas
+
+Agora deixamos de criar apenas “exemplos isolados”.
+
+Estamos criando:
+
+```text
+um jogo completo usando memória dinâmica
+```
+
+---
+
+# O que esse jogo representa
+
+Esse projeto simula:
+
+```text
+um sistema real de entidades dinâmicas
+```
+
+Ou seja:
+
+- objetos nascem
+- memória cresce
+- memória é realocada
+- entidades aparecem dinamicamente
+
+Isso é MUITO parecido com:
+- engines reais
+- sistemas ECS
+- jogos profissionais
+
+---
+
+# Código Completo
 
 ```c
 // Importa a biblioteca gráfica Raylib
@@ -12,6 +65,10 @@
 // Importa funções de texto como printf
 #include <stdio.h>
 
+// =========================================
+// ESTRUTURA DO BLOCO DE MEMÓRIA
+// =========================================
+
 // Cria uma estrutura chamada BlocoMemoria
 typedef struct BlocoMemoria {
 
@@ -21,19 +78,26 @@ typedef struct BlocoMemoria {
     // Guarda tamanho do bloco
     float tamanho;
 
-    // Define se o bloco está ativo
+    // Define se bloco está ativo
     bool ativo;
 
 } BlocoMemoria;
 
-// Função principal do programa
+// =========================================
+// FUNÇÃO PRINCIPAL
+// =========================================
+
 int main(void)
 {
-    // Cria a janela do jogo
+    // Cria janela do jogo
     InitWindow(800, 450, "Jogo dos Ponteiros e malloc");
 
-    // Define FPS do jogo
+    // Define FPS
     SetTargetFPS(60);
+
+    // =========================================
+    // JOGADOR
+    // =========================================
 
     // Posição inicial do jogador
     Vector2 jogador = { 400, 225 };
@@ -41,7 +105,11 @@ int main(void)
     // Velocidade do jogador
     float velocidade = 4.0f;
 
-    // Quantidade máxima inicial de blocos
+    // =========================================
+    // CONTROLE DE MEMÓRIA
+    // =========================================
+
+    // Capacidade máxima inicial
     int capacidade = 5;
 
     // Quantidade atual de blocos
@@ -50,63 +118,77 @@ int main(void)
     // Pontuação do jogador
     int pontos = 0;
 
+    // =========================================
+    // MALLOC
+    // =========================================
+
     // malloc:
-    // cria um vetor dinâmico na heap
+    // cria vetor dinâmico na heap
     BlocoMemoria *blocos =
         malloc(capacidade * sizeof(BlocoMemoria));
 
     // Verifica erro de memória
     if (blocos == NULL)
     {
-        // Mostra erro no terminal
+        // Mostra erro
         printf("Erro ao alocar memoria!\n");
 
         // Encerra programa
         return 1;
     }
 
-    // Inicializa os blocos
+    // =========================================
+    // INICIALIZAÇÃO DOS BLOCOS
+    // =========================================
+
+    // Percorre todos os blocos
     for (int i = 0; i < quantidade; i++)
     {
-        // Posição X aleatória
+        // Define posição X aleatória
         blocos[i].posicao.x =
             GetRandomValue(50, 750);
 
-        // Posição Y aleatória
+        // Define posição Y aleatória
         blocos[i].posicao.y =
             GetRandomValue(50, 400);
 
-        // Tamanho do bloco
+        // Define tamanho do bloco
         blocos[i].tamanho = 25;
 
-        // Bloco começa ativo
+        // Ativa bloco
         blocos[i].ativo = true;
     }
 
-    // Loop principal do jogo
+    // =========================================
+    // GAME LOOP
+    // =========================================
+
     while (!WindowShouldClose())
     {
-        // =========================
-        // MOVIMENTO DO JOGADOR
-        // =========================
+        // =========================================
+        // INPUT
+        // =========================================
 
-        // Move para direita
+        // Move jogador para direita
         if (IsKeyDown(KEY_RIGHT))
             jogador.x += velocidade;
 
-        // Move para esquerda
+        // Move jogador para esquerda
         if (IsKeyDown(KEY_LEFT))
             jogador.x -= velocidade;
 
-        // Move para cima
+        // Move jogador para cima
         if (IsKeyDown(KEY_UP))
             jogador.y -= velocidade;
 
-        // Move para baixo
+        // Move jogador para baixo
         if (IsKeyDown(KEY_DOWN))
             jogador.y += velocidade;
 
-        // Cria hitbox do jogador
+        // =========================================
+        // HITBOX DO JOGADOR
+        // =========================================
+
         Rectangle rectJogador =
         {
             jogador.x,
@@ -115,7 +197,10 @@ int main(void)
             30
         };
 
-        // Percorre todos os blocos
+        // =========================================
+        // LOOP DE COLISÃO
+        // =========================================
+
         for (int i = 0; i < quantidade; i++)
         {
             // Verifica se bloco está ativo
@@ -143,11 +228,11 @@ int main(void)
             }
         }
 
-        // ==================================
-        // REALOCAÇÃO DINÂMICA DE MEMÓRIA
-        // ==================================
+        // =========================================
+        // REALLOCAÇÃO DINÂMICA
+        // =========================================
 
-        // Se todos os blocos foram coletados
+        // Quando todos os blocos forem coletados
         if (pontos == quantidade)
         {
             // Aumenta capacidade total
@@ -157,16 +242,15 @@ int main(void)
             quantidade += 5;
 
             // realloc:
-            // aumenta tamanho do vetor
+            // aumenta vetor dinamicamente
             BlocoMemoria *novoEndereco =
                 realloc(blocos,
                         capacidade *
                         sizeof(BlocoMemoria));
 
-            // Verifica erro de realloc
+            // Verifica erro
             if (novoEndereco == NULL)
             {
-                // Mostra erro
                 printf("Erro ao realocar memoria!\n");
 
                 // Libera memória antiga
@@ -175,7 +259,6 @@ int main(void)
                 // Fecha janela
                 CloseWindow();
 
-                // Encerra programa
                 return 1;
             }
 
@@ -187,11 +270,11 @@ int main(void)
                  i < quantidade;
                  i++)
             {
-                // Nova posição X aleatória
+                // Nova posição X
                 blocos[i].posicao.x =
                     GetRandomValue(50, 750);
 
-                // Nova posição Y aleatória
+                // Nova posição Y
                 blocos[i].posicao.y =
                     GetRandomValue(50, 400);
 
@@ -203,14 +286,14 @@ int main(void)
             }
         }
 
-        // =========================
+        // =========================================
         // RENDERIZAÇÃO
-        // =========================
+        // =========================================
 
-        // Inicia desenho do frame
+        // Inicia renderização
         BeginDrawing();
 
-        // Limpa fundo da tela
+        // Limpa tela
         ClearBackground(RAYWHITE);
 
         // Título do jogo
@@ -221,47 +304,60 @@ int main(void)
                  DARKBLUE);
 
         // Instruções
-        DrawText("Use as setas para coletar blocos de memoria",
-                 20,
-                 55,
-                 18,
-                 DARKGRAY);
+        DrawText(
+            "Use as setas para coletar blocos de memoria",
+            20,
+            55,
+            18,
+            DARKGRAY
+        );
 
         // Mostra pontuação
-        DrawText(TextFormat("Pontos: %d", pontos),
-                 20,
-                 90,
-                 20,
-                 BLACK);
+        DrawText(
+            TextFormat("Pontos: %d", pontos),
+            20,
+            90,
+            20,
+            BLACK
+        );
 
         // Mostra quantidade de blocos
-        DrawText(TextFormat("Blocos alocados: %d",
-                            quantidade),
-                 20,
-                 115,
-                 20,
-                 BLACK);
+        DrawText(
+            TextFormat("Blocos alocados: %d",
+                       quantidade),
+            20,
+            115,
+            20,
+            BLACK
+        );
 
-        // Mostra capacidade da memória
-        DrawText(TextFormat("Capacidade da memoria: %d",
-                            capacidade),
-                 20,
-                 140,
-                 20,
-                 BLACK);
+        // Mostra capacidade total
+        DrawText(
+            TextFormat("Capacidade da memoria: %d",
+                       capacidade),
+            20,
+            140,
+            20,
+            BLACK
+        );
 
         // Desenha jogador
-        DrawRectangleV(jogador,
-                       (Vector2){30, 30},
-                       BLUE);
+        DrawRectangleV(
+            jogador,
+            (Vector2){30, 30},
+            BLUE
+        );
 
-        // Percorre todos os blocos
+        // =========================================
+        // DESENHA BLOCOS
+        // =========================================
+
         for (int i = 0; i < quantidade; i++)
         {
             // Verifica se bloco está ativo
             if (blocos[i].ativo)
             {
-                // Desenha bloco
+                // Desenha bloco verde
                 DrawRectangleV(
                     blocos[i].posicao,
                     (Vector2)
@@ -274,7 +370,7 @@ int main(void)
             }
         }
 
-        // Explicação sobre memória
+        // Explicação visual
         DrawText(
             "malloc cria os blocos | realloc aumenta | free libera no final",
             20,
@@ -287,6 +383,10 @@ int main(void)
         EndDrawing();
     }
 
+    // =========================================
+    // FREE
+    // =========================================
+
     // free:
     // libera memória usada pelos blocos
     free(blocos);
@@ -294,74 +394,213 @@ int main(void)
     // Fecha janela
     CloseWindow();
 
-    // Encerra programa corretamente
+    // Encerra programa
     return 0;
 }
 ```
 
 ---
 
-# O que este jogo ensina
+# Explicação COMPLETA da Arquitetura do Jogo
 
-Este projeto integra:
+# 1. Struct BlocoMemoria
 
-- renderização
-- input
-- colisão
-- structs
-- ponteiros
-- heap
-- malloc
-- realloc
-- free
-- arrays dinâmicos
-- gameplay loop
+```c
+typedef struct BlocoMemoria
+```
+
+Cria:
+
+```text
+um tipo personalizado
+```
+
+Cada bloco possui:
+
+| Campo | Função |
+|---|---|
+| posicao | localização |
+| tamanho | tamanho do quadrado |
+| ativo | se ainda existe |
 
 ---
 
-# O mais importante desta aula
+# 2. O que é Vector2
 
-Agora o aluno consegue visualizar:
-
-```text
-malloc cria entidades reais na tela
+```c
+Vector2
 ```
 
-e:
+É uma struct da Raylib:
 
-```text
-realloc aumenta a memória do jogo dinamicamente
+```c
+typedef struct Vector2
+{
+    float x;
+    float y;
+} Vector2;
 ```
 
-Isso torna:
-- ponteiros
-- heap
-- memória dinâmica
-
-muito mais fáceis de entender visualmente.
+Usada para:
+- posição
+- movimento
+- velocidade
+- direção
 
 ---
 
-# Fluxo do jogo
+# 3. O que malloc faz
 
-```text
+```c
 malloc()
-    ↓
-cria blocos
-    ↓
-jogador coleta
-    ↓
-colisão detecta
-    ↓
-pontuação aumenta
-    ↓
+```
+
+faz:
+
+```text
+alocação dinâmica de memória
+```
+
+---
+
+# O que acontece internamente
+
+O sistema operacional:
+
+1. reserva RAM
+2. retorna endereço
+3. ponteiro guarda endereço
+
+---
+
+# Heap
+
+malloc usa:
+
+```text
+HEAP
+```
+
+Heap é:
+- memória dinâmica
+- usada para objetos variáveis
+
+---
+
+# Visualização da Heap
+
+```text
+HEAP
+┌──────────────┐
+│ Bloco 0      │
+├──────────────┤
+│ Bloco 1      │
+├──────────────┤
+│ Bloco 2      │
+├──────────────┤
+│ Bloco 3      │
+├──────────────┤
+│ Bloco 4      │
+└──────────────┘
+```
+
+---
+
+# 4. O que significa:
+
+```c
+BlocoMemoria *blocos
+```
+
+Isso significa:
+
+```text
+“ponteiro para BlocoMemoria”
+```
+
+---
+
+# 5. O que é realloc
+
+```c
 realloc()
-    ↓
-mais blocos aparecem
-    ↓
+```
+
+Aumenta:
+- memória dinâmica já existente
+
+---
+
+# O que realloc faz internamente
+
+O sistema:
+
+1. tenta aumentar espaço atual
+2. se não conseguir:
+   - cria nova área
+   - copia dados antigos
+   - libera área antiga
+
+---
+
+# Visualização do realloc
+
+## Antes
+
+```text
+5 blocos
+```
+
+---
+
+## Depois
+
+```text
+10 blocos
+```
+
+---
+
+# 6. O que free faz
+
+```c
 free()
-    ↓
-memória liberada
+```
+
+Libera:
+- memória heap
+
+---
+
+# Sem free acontece:
+
+- memory leak
+- vazamento de RAM
+- travamentos
+- consumo infinito
+
+---
+
+# O que é Gameplay Loop
+
+Observe:
+
+```text
+mover
+↓
+colidir
+↓
+ganhar ponto
+↓
+mais blocos aparecem
+↓
+repetir
+```
+
+Isso é:
+
+```text
+GAMEPLAY LOOP
 ```
 
 ---
@@ -370,27 +609,146 @@ memória liberada
 
 | Conceito | Foi usado |
 |---|---|
-| Gameplay Loop | ✔ |
-| Dynamic Allocation | ✔ |
-| Heap Memory | ✔ |
-| Collision | ✔ |
-| Structs | ✔ |
-| Pointers | ✔ |
+| Heap | ✔ |
+| malloc | ✔ |
 | realloc | ✔ |
 | free | ✔ |
+| Structs | ✔ |
+| Collision | ✔ |
 | Dynamic Entities | ✔ |
+| Gameplay Loop | ✔ |
+| Arrays Dinâmicos | ✔ |
+| Ponteiros | ✔ |
+
+---
+
+# O que o aluno aprende de verdade
+
+O aluno entende visualmente:
+
+```text
+malloc cria entidades
+```
+
+```text
+realloc aumenta entidades
+```
+
+```text
+free libera entidades
+```
+
+Isso é MUITO mais forte do que:
+
+```c
+int *p;
+```
+
+isolado no terminal.
 
 ---
 
 # Curiosidade MUITO importante
 
-Esse padrão é parecido com:
-- engines reais
-- sistemas ECS
-- jogos AAA
-- gerenciamento dinâmico de entidades
+Esse código já se aproxima de:
 
-Você já está entrando em:
-- arquitetura de engine
-- gerenciamento profissional de memória
-- data-oriented programming
+- ECS
+- Entity Systems
+- Data-Oriented Design
+- arquiteturas de engines reais
+
+---
+
+# Resultado esperado
+
+Você verá:
+
+- jogador azul
+- blocos verdes
+- colisão
+- score
+- crescimento dinâmico de memória
+
+E visualizará:
+
+```text
+malloc e realloc funcionando AO VIVO
+```
+
+---
+
+# Desafios
+
+## Desafio 1
+
+Adicione:
+- música
+
+---
+
+## Desafio 2
+
+Adicione:
+- partículas
+
+---
+
+## Desafio 3
+
+Faça:
+- inimigos perseguirem jogador
+
+---
+
+## Desafio 4
+
+Use:
+- calloc()
+
+---
+
+## Super Desafio
+
+Transforme em:
+
+- survival game
+- shooter
+- coleta infinita
+- mini ECS engine
+
+---
+
+# Próximos passos profissionais
+
+Agora você pode estudar:
+
+| Tema | Nível |
+|---|---|
+| ECS | Avançado |
+| OpenGL | Avançado |
+| Physics | Avançado |
+| Shaders | Avançado |
+| Multiplayer | Avançado |
+| Engine Architecture | Avançado |
+
+---
+
+# Parabéns
+
+Você agora já entende:
+
+✅ gameplay loop  
+✅ renderização  
+✅ colisão  
+✅ structs  
+✅ ponteiros  
+✅ heap  
+✅ malloc  
+✅ realloc  
+✅ free  
+✅ entidades dinâmicas  
+
+Isso já é:
+- programação profissional
+- arquitetura de jogos
+- base de game engines reais
