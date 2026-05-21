@@ -768,9 +768,9 @@ personagem parece animado
 
 ---
 
-# O que o aluno aprende de verdade
+# O que voce aprende de verdade
 
-O aluno entende:
+voce entende:
 
 ```text
 animação 2D = trocar frames rapidamente
