@@ -9,19 +9,23 @@ int main()
 {
     InitWindow(800, 600, "FPS Example");
 
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
     int x = 0;
 
     while (!WindowShouldClose())
     {
-        x += 2;
+        x += 10;
+
+        a += 5;
 
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
 
         DrawRectangle(x, 250, 100, 100, BLUE);
+
+        DrawRectangle(a, 400, 100, 100, RED);
 
         DrawText("FPS Example", 10, 10, 20, BLACK);
 
